@@ -1,5 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useForm } from "@tanstack/react-form";
 import { homeRepositoryFactory } from "../data";
+import { useMemo } from "react";
 
 export const useQuiz = () => {
   const homeRepository = homeRepositoryFactory();
@@ -13,7 +15,24 @@ export const useQuiz = () => {
       })),
   });
 
-  const country = countries[Math.floor(Math.random() * countries.length)];
+  const country = useMemo(
+    () => countries[Math.floor(Math.random() * countries.length)],
+    [countries]
+  );
 
-  return { country, isLoading };
+  const form = useForm({
+    defaultValues: { answer: "" },
+    validators: {
+      onChange: ({ value }) => ({
+        fields: {
+          answer: !value.answer ? "You cannot submit empty answer" : undefined,
+        },
+      }),
+    },
+    onSubmit({ value }) {
+      console.log(value);
+    },
+  });
+
+  return { country, isLoading, form };
 };

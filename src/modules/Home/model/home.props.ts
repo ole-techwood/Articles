@@ -1,6 +1,3 @@
-import type { Country } from "./home";
+import type { useQuiz } from "../application/useQuiz";
 
-export type QuizProps = {
-  country: Country;
-  isLoading: boolean;
-};
+export type QuizProps = ReturnType<typeof useQuiz>;
