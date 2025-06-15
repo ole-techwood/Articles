@@ -1,10 +1,15 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { historyRepositoryFactory } from "@/modules/History/data/history.repository";
+import type { HistoryDTO } from "@/modules/History/model";
 import { useForm } from "@tanstack/react-form";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { useCallback, useMemo, useState } from "react";
 import { homeRepositoryFactory } from "../data";
-import { useMemo } from "react";
 
 export const useQuiz = () => {
   const homeRepository = homeRepositoryFactory();
+  const historyRepository = historyRepositoryFactory();
+
+  const [result, setResult] = useState<HistoryDTO>();
 
   const { data: countries, isLoading } = useSuspenseQuery({
     ...homeRepository.findCountries(),
@@ -15,10 +20,12 @@ export const useQuiz = () => {
       })),
   });
 
-  const country = useMemo(
+  const randomCountry = useMemo(
     () => countries[Math.floor(Math.random() * countries.length)],
-    [countries]
+    [countries, result]
   );
+
+  const [country, setCountry] = useState(randomCountry);
 
   const form = useForm({
     defaultValues: { answer: "" },
@@ -30,9 +37,27 @@ export const useQuiz = () => {
       }),
     },
     onSubmit({ value }) {
-      console.log(value);
+      const result = {
+        flagImage: country.flag,
+        countryName: country.name,
+        userAnswer: value.answer,
+      };
+
+      setResult(result);
+
+      historyRepository.saveResult(result);
     },
   });
 
-  return { country, isLoading, form };
+  const onSubmit = useCallback(() => {
+    if (!result) {
+      form.handleSubmit();
+    } else {
+      form.resetField("answer");
+      setCountry(randomCountry);
+      setResult(undefined);
+    }
+  }, [form, result]);
+
+  return { country, isLoading, form, result, onSubmit };
 };
