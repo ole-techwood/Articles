@@ -45,7 +45,7 @@ export const useQuiz = () => {
 
       setResult(result);
 
-      historyRepository.saveResult(result);
+      historyRepository.saveAnswer(result);
     },
   });
 
