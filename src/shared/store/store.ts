@@ -1,5 +1,8 @@
+import { historySlice, type HistorySlice } from "@/modules/History/data";
 import { create } from "zustand";
 
-type Store = {};
+type Store = HistorySlice;
 
-export const store = create<Store>(() => ({}));
+export const store = create<Store>()(() => ({
+  ...historySlice(),
+}));

@@ -4,7 +4,7 @@ import type { CountryResponse } from "../model";
 /**
  * The repository for the Home module of the app
  */
-class HomeRepository {
+export class HomeRepository {
   /**
    * Classes that we inject into the repository through the constructor
    */

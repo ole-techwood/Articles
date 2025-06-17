@@ -1,47 +1,43 @@
-import { storageServiceFactory, type StorageService } from "@/shared/storage";
 import type { HistoryDTO } from "../model";
+import { historySlice } from "./history.slice";
 
+/**
+ * Repository for managing history in browser storage.
+ */
 class HistoryRepository {
-  private readonly storageService: StorageService;
-  private readonly storageKey = "history";
+  /**
+   * Service used to access the data.
+   */
+  private readonly storageService: typeof historySlice;
 
-  constructor(storageService: StorageService) {
+  constructor(storageService: typeof historySlice) {
     this.storageService = storageService;
   }
 
-  saveResult(result: HistoryDTO) {
-    const historyRecordsStringified = this.storageService.getItem(
-      this.storageKey
-    );
-
-    const history = [result];
-
-    if (historyRecordsStringified) {
-      const historyRecords: HistoryDTO[] = JSON.parse(
-        historyRecordsStringified
-      );
-
-      return this.storageService.setItem(
-        this.storageKey,
-        JSON.stringify(history.concat(historyRecords))
-      );
-    }
-
-    return this.storageService.setItem(
-      this.storageKey,
-      JSON.stringify(history)
-    );
+  /**
+   * Saves a new result to the beginning of the history array.
+   *
+   * @param result - The new result to save (HistoryDTO)
+   */
+  saveAnswer(result: HistoryDTO) {
+    return this.storageService.getState().saveAnswer(result);
   }
 
-  getResults(): HistoryDTO[] {
-    const history = this.storageService.getItem(this.storageKey);
-
-    return !history ? [] : JSON.parse(history);
+  /**
+   * Returns an array of all saved history results.
+   * If no history exists, returns an empty array.
+   *
+   * @returns Array of history records.
+   */
+  getHistory() {
+    return this.storageService((state) => state.history);
   }
 }
 
-export const historyRepositoryFactory = () => {
-  const storageService = storageServiceFactory();
-
-  return new HistoryRepository(storageService);
-};
+/**
+ * Factory function to create a HistoryRepository instance with an attached `historySlice` as `storageService`.
+ *
+ * @returns A new HistoryRepository instance
+ */
+export const historyRepositoryFactory = () =>
+  new HistoryRepository(historySlice);
