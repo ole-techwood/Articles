@@ -48,7 +48,7 @@ export class APIService {
  */
 export const apiServiceFactory = (queryKey: string[]) => {
   const apiClient = axios.create({
-    baseURL: import.meta.env.VITE_API_URL,
+    baseURL: "https://restcountries.com/v3.1",
     adapter: "fetch",
   });
 
