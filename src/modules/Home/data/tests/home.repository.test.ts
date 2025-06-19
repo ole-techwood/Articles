@@ -64,6 +64,14 @@ describe("HomeRepository", () => {
 
       expect(result).toEqual([]);
     });
+
+    it("should fail when API throws", async () => {
+      apiService = createMockApiService(
+        vi.fn().mockRejectedValue(new Error("API fail"))
+      );
+      const repo = new HomeRepository(apiService);
+      await expect(repo.findCountries()).rejects.toThrow("API fail");
+    });
   });
 });
 
