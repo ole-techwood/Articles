@@ -22,7 +22,7 @@ const localStorageMock = (() => {
 Object.defineProperty(window, "localStorage", { value: localStorageMock });
 
 describe("historySlice", () => {
-  let store: typeof historySlice;
+  let slice: typeof historySlice;
 
   const sample = {
     flagImage: "flag.png",
@@ -34,18 +34,18 @@ describe("historySlice", () => {
   beforeEach(() => {
     window.localStorage.clear();
 
-    store = historySlice;
-    store.getState().clearHistory();
+    slice = historySlice;
+    slice.getState().clearHistory();
   });
 
   it("should initialize with empty history", () => {
-    expect(store.getState().history).toEqual([]);
+    expect(slice.getState().history).toEqual([]);
   });
 
   it("should save an answer to history", () => {
-    store.getState().saveAnswer(sample);
+    slice.getState().saveAnswer(sample);
 
-    expect(store.getState().history[0]).toEqual(sample);
+    expect(slice.getState().history[0]).toEqual(sample);
   });
 
   it("should save multiple answers in correct order", () => {
@@ -56,21 +56,21 @@ describe("historySlice", () => {
     };
 
     // sample is inserted first, but should appear last in the final array
-    store.getState().saveAnswer(sample);
+    slice.getState().saveAnswer(sample);
 
     // answer is inserted last, but should appear first in the final array
-    store.getState().saveAnswer(answer);
+    slice.getState().saveAnswer(answer);
 
-    expect(store.getState().history[0]).toEqual(answer);
+    expect(slice.getState().history[0]).toEqual(answer);
 
     // sample is second, because Zustand append new value at the start of the array
-    expect(store.getState().history[1]).toEqual(sample);
+    expect(slice.getState().history[1]).toEqual(sample);
   });
 
   it("should clear history", () => {
-    store.getState().saveAnswer(sample);
-    store.getState().clearHistory();
+    slice.getState().saveAnswer(sample);
+    slice.getState().clearHistory();
 
-    expect(store.getState().history).toEqual([]);
+    expect(slice.getState().history).toEqual([]);
   });
 });

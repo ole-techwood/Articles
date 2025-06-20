@@ -1,4 +1,3 @@
-import type { HistoryDTO } from "../model";
 import { historySlice } from "./history.slice";
 
 /**
@@ -8,23 +7,23 @@ class HistoryRepository {
   /**
    * Service used to access the data.
    */
-  private readonly storageService: typeof historySlice;
+  private readonly historySlice: typeof historySlice;
 
-  constructor(storageService: typeof historySlice) {
-    this.storageService = storageService;
+  constructor(historySlice: typeof historySlice) {
+    this.historySlice = historySlice;
   }
 
   /**
    * Saves a new result to the beginning of the history array.
    *
-   * @param result - The new result to save (HistoryDTO)
+   * @param result - The new result to save
    */
-  saveAnswer(result: HistoryDTO) {
+  saveAnswer(result: any) {
     return this.storageService.getState().saveAnswer(result);
   }
 
   /**
-   * Returns an array of all saved history results.
+   * Returns an array of all saved history records.
    * If no history exists, returns an empty array.
    *
    * @returns Array of history records.
@@ -35,7 +34,7 @@ class HistoryRepository {
 }
 
 /**
- * Factory function to create a HistoryRepository instance with an attached `historySlice` as `storageService`.
+ * Factory function to create a HistoryRepository instance.
  *
  * @returns A new HistoryRepository instance
  */
