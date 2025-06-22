@@ -4,6 +4,7 @@ import { useForm } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
 import { homeRepositoryFactory } from "../data";
+import { countriesPayload } from "../model";
 
 export const useQuiz = () => {
   const homeRepository = homeRepositoryFactory();
@@ -11,13 +12,29 @@ export const useQuiz = () => {
 
   const [result, setResult] = useState<HistoryDTO>();
 
-  const { data: countries, isLoading } = useSuspenseQuery({
+  const {
+    data: countries,
+    isLoading,
+    error,
+  } = useSuspenseQuery({
     ...homeRepository.findCountries(),
-    select: (countries) =>
-      countries.data.map((country) => ({
+    select: (countries) => {
+      const result = countriesPayload.safeParse(countries.data);
+
+      // TanStack Query will handle this throw and append it to the error
+      if (!result.success) {
+        throw new Error(
+          "We've received incorrect data from our countries provider. We're already fixing this error, please try again in 15 minutes.",
+          { cause: result.error }
+        );
+      }
+
+      // Map the payload coming from the repository into Module Type
+      return result.data.map((country) => ({
         flag: country.flags.png,
         name: country.name.common,
-      })),
+      }));
+    },
   });
 
   const randomCountry = useMemo(
@@ -59,5 +76,5 @@ export const useQuiz = () => {
     }
   }, [form, result]);
 
-  return { country, isLoading, form, result, onSubmit };
+  return { country, isLoading, form, result, onSubmit, error };
 };

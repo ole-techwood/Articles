@@ -1,5 +1,5 @@
 import { apiServiceFactory, type APIService } from "@/shared/api";
-import type { CountryResponse } from "../model";
+import type { CountryPayload } from "../model";
 
 /**
  * The repository for the Home module of the app
@@ -21,7 +21,7 @@ export class HomeRepository {
    * We'll do it later, when we'll develop a model layer
    */
   findCountries() {
-    return this.apiService.get<CountryResponse[]>("/all?fields=name,flags");
+    return this.apiService.get<CountryPayload[]>("/all?fields=name,flags");
   }
 }
 
