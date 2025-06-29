@@ -1,3 +1,4 @@
+import type { CreateHistoryRecordDTO } from "../model";
 import { historySlice } from "./history.slice";
 
 /**
@@ -7,19 +8,23 @@ class HistoryRepository {
   /**
    * Service used to access the data.
    */
-  private readonly historySlice: typeof historySlice;
+  private readonly slice: typeof historySlice;
 
-  constructor(historySlice: typeof historySlice) {
-    this.historySlice = historySlice;
+  constructor(slice: typeof historySlice) {
+    this.slice = slice;
   }
 
   /**
    * Saves a new result to the beginning of the history array.
    *
-   * @param result - The new result to save
+   * Append `createdAt` timestamp to indicate when the record was created
+   *
+   * @param createHistoryRecordDto - The new result to save
    */
-  saveAnswer(result: any) {
-    return this.storageService.getState().saveAnswer(result);
+  saveAnswer(createHistoryRecordDto: CreateHistoryRecordDTO) {
+    return this.slice
+      .getState()
+      .saveAnswer({ ...createHistoryRecordDto, createdAt: Date.now() });
   }
 
   /**
@@ -29,7 +34,7 @@ class HistoryRepository {
    * @returns Array of history records.
    */
   getHistory() {
-    return this.storageService((state) => state.history);
+    return this.slice((state) => state.history);
   }
 }
 

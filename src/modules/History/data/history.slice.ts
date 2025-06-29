@@ -1,10 +1,10 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { HistoryDTO } from "../model";
+import type { HistoryRecord } from "../model";
 
 export type HistorySlice = {
-  history: HistoryDTO[];
-  saveAnswer: (result: HistoryDTO) => void;
+  history: HistoryRecord[];
+  saveAnswer: (result: HistoryRecord) => void;
   clearHistory: () => void;
 };
 
