@@ -3,18 +3,18 @@ import * as z from "zod/v4";
 // Define an object for a single country returned from the countries API
 const countryPayload = z.object({
   flags: z.object({
-    png: z.string(),
-    svg: z.string(),
+    png: z.string().nonempty(),
+    svg: z.string().nonempty(),
     alt: z.string(),
   }),
   name: z.object({
-    common: z.string(),
-    official: z.string(),
+    common: z.string().nonempty(),
+    official: z.string().nonempty(),
     nativeName: z.record(
-      z.string(),
+      z.string().nonempty(),
       z.object({
-        official: z.string(),
-        common: z.string(),
+        official: z.string().nonempty(),
+        common: z.string().nonempty(),
       })
     ),
   }),
