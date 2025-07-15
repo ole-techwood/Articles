@@ -17,7 +17,8 @@ export const HistoryList: React.FC<HistoryListProps> = ({ history }) => {
         <React.Fragment key={record.userAnswer + "-" + idx}>
           <ListItem
             secondaryAction={
-              record.countryName === record.userAnswer ? (
+              record.countryName.toLowerCase() ===
+              record.userAnswer.toLowerCase() ? (
                 <Done color="success" />
               ) : (
                 <Close color="warning" />

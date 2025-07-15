@@ -2,7 +2,7 @@ import { Container } from "@mui/material";
 import { Quiz } from "./view/Quiz";
 import { useQuiz } from "./application/useQuiz";
 
-export const Home = () => {
+export const Home: React.FC = () => {
   const quizProps = useQuiz();
 
   return (

@@ -1,6 +1,9 @@
 import type { useQuiz } from "../application/useQuiz";
 
-export type QuizProps = ReturnType<typeof useQuiz>;
+export type QuizProps = Omit<
+  ReturnType<typeof useQuiz>,
+  "isLoading" | "error" | "submissionError"
+>;
 
 export type QuizFormProps = Pick<QuizProps, "form">;
 

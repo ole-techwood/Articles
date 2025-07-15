@@ -5,7 +5,8 @@ import { Alert, Stack, Typography } from "@mui/material";
 export const QuizResult: React.FC<QuizResultProps> = ({ result }) => {
   return (
     <Stack>
-      {result?.countryName === result?.userAnswer ? (
+      {result?.countryName.toLowerCase() ===
+      result?.userAnswer.toLowerCase() ? (
         <React.Fragment>
           <Typography component="div" sx={{ mt: 2 }} color="success">
             Brilliant work!
