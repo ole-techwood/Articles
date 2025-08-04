@@ -33,7 +33,7 @@ vi.mock("../QuizResult", () => ({
   ),
 }));
 
-describe("Quiz Component", () => {
+describe("Quiz", () => {
   const mockOnSubmit = vi.fn();
 
   const mockCountry = {

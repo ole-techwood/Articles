@@ -14,16 +14,20 @@ export const useQuiz = () => {
   const homeRepository = homeRepositoryFactory();
   const historyRepository = historyRepositoryFactory();
 
+  // State with the result to display and check it in the view
   const [result, setResult] = useState<CreateHistoryRecordDTO>();
   const [submissionError, setSubmissionError] = useState("");
 
+  // Load the data
   const {
     data: countries,
     isLoading,
     error,
   } = useSuspenseQuery({
     ...homeRepository.findCountries(),
+    // Map the data
     select: (countries) => {
+      // Parse the data from the repository
       const payload = countriesPayload.safeParse(countries.data);
 
       // TanStack Query will handle this throw and append it to the error
@@ -34,7 +38,7 @@ export const useQuiz = () => {
         );
       }
 
-      // Map the payload coming from the repository into Module Type
+      // Map the payload coming from the repository
       return payload.data.map((country) => ({
         flag: country.flags.png,
         name: country.name.common,
@@ -42,15 +46,19 @@ export const useQuiz = () => {
     },
   });
 
+  // Select one random country
   const randomCountry = useMemo(
     () => countries[Math.floor(Math.random() * countries.length)],
     [countries, result]
   );
 
+  // State with one random country
   const [country, setCountry] = useState(randomCountry);
 
+  // Form instance initialization. Answer is one empty string default value
   const form = useForm({
     defaultValues: { answer: "" },
+    // Specify form validators
     validators: {
       onChange: ({ value }) => ({
         fields: {
@@ -58,6 +66,7 @@ export const useQuiz = () => {
         },
       }),
     },
+    // Submission logic
     onSubmit({ value }) {
       const dto = {
         flagImage: country.flag,
@@ -87,8 +96,6 @@ export const useQuiz = () => {
   });
 
   const onSubmit = useCallback(() => {
-    console.log(result);
-
     if (!result) {
       form.handleSubmit();
     } else {
