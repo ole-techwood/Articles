@@ -26,3 +26,7 @@ This project uses [TanStack Query](https://tanstack.com/query/latest) to send re
 ## State Management
 
 This project uses [Zustand](https://zustand.docs.pmnd.rs/getting-started/introduction) to store global state.
+
+## Form Handling
+
+This project uses [TanStack Form](https://tanstack.com/form/latest/docs/overview) to handle all the forms.

@@ -25,8 +25,17 @@ export const useQuiz = () => {
     error,
   } = useSuspenseQuery({
     ...homeRepository.findCountries(),
-    // Map the data
-    select: (countries) => {
+    queryFn: async (context) => {
+      const queryFn = homeRepository.findCountries().queryFn;
+
+      if (!queryFn) {
+        throw new Error(
+          "Unexpected error happened during loading the countries. Please try again in 15 minutes."
+        );
+      }
+
+      const countries = await queryFn(context);
+
       // Parse the data from the repository
       const payload = countriesPayload.safeParse(countries.data);
 
@@ -38,18 +47,21 @@ export const useQuiz = () => {
         );
       }
 
-      // Map the payload coming from the repository
-      return payload.data.map((country) => ({
+      return countries;
+    },
+    // Map the data
+    select: (countries) =>
+      countries.data.map((country) => ({
         flag: country.flags.png,
         name: country.name.common,
-      }));
-    },
+      })),
   });
 
   // Select one random country
+  // This may occasionally give the same country again. You can customize the randomizer to exclude the current one if needed.
   const randomCountry = useMemo(
     () => countries[Math.floor(Math.random() * countries.length)],
-    [countries, result]
+    [countries]
   );
 
   // State with one random country
@@ -112,5 +124,6 @@ export const useQuiz = () => {
     }
   }, [form, result, randomCountry]);
 
+  // We rely on TypeScript to infer the return type of useQuiz automatically.
   return { country, isLoading, form, result, onSubmit, error, submissionError };
 };
