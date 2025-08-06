@@ -68,29 +68,36 @@ export const useQuiz = () => {
     },
     // Submission logic
     onSubmit({ value }) {
+      // Create a DTO object
       const dto = {
         flagImage: country.flag,
         countryName: country.name,
         userAnswer: value.answer,
       };
 
+      // Parse DTO
       const historyDto = createHistoryRecordDTO.safeParse(dto);
 
       if (!historyDto.success) {
+        // https://zod.dev/error-formatting#zflattenerror
         const error = z.flattenError(
           historyDto.error as unknown as z.ZodError<CreateHistoryRecordDTO>
         );
 
+        // Retrieve the first error
         const formError = error.formErrors[0];
         const firstFieldError = Object.values(error.fieldErrors)[0][0];
 
+        // Set the error
         setSubmissionError(formError || firstFieldError);
 
         return;
       }
 
+      // Set the result
       setResult(dto);
 
+      // Save the result
       historyRepository.saveAnswer(historyDto.data);
     },
   });
