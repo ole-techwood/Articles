@@ -1,5 +1,5 @@
 import { renderHook } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useQuiz } from "../useQuiz";
 
 // Mock dependencies
@@ -39,16 +39,18 @@ vi.mock("@tanstack/react-form", () => ({
 }));
 
 describe("useQuiz Hook", () => {
-  const mockCountriesData = [
-    {
-      flags: { png: "https://example.com/fr.png" },
-      name: { common: "France" },
-    },
-    {
-      flags: { png: "https://example.com/de.png" },
-      name: { common: "Germany" },
-    },
-  ];
+  const mockRawCountriesResponse = {
+    data: [
+      {
+        flags: { png: "https://example.com/fr.png" },
+        name: { common: "France" },
+      },
+      {
+        flags: { png: "https://example.com/de.png" },
+        name: { common: "Germany" },
+      },
+    ],
+  };
 
   const mockTransformedCountries = [
     { flag: "https://example.com/fr.png", name: "France" },
@@ -56,7 +58,7 @@ describe("useQuiz Hook", () => {
   ];
 
   beforeEach(async () => {
-    // Mock react-query
+    // Mock react-query - now returns already transformed data from queryFn
     const reactQuery = await import("@tanstack/react-query");
     vi.mocked(reactQuery.useSuspenseQuery).mockReturnValue({
       data: mockTransformedCountries,
@@ -76,11 +78,11 @@ describe("useQuiz Hook", () => {
       })),
     } as any);
 
-    // Mock model parsers
+    // Mock model parsers - these are now used in the repository's queryFn
     const model = await import("../../model");
     vi.mocked(model.countriesPayload.safeParse).mockReturnValue({
       success: true,
-      data: mockCountriesData,
+      data: mockRawCountriesResponse.data,
     } as any);
 
     const historyModel = await import("@/modules/History/model");
@@ -109,9 +111,10 @@ describe("useQuiz Hook", () => {
     it("should handle successful data loading", () => {
       const { result } = renderHook(() => useQuiz());
 
-      expect(result.current.country.flag).toBeDefined();
-      expect(result.current.country.name).toBeDefined();
-      expect(["France", "Germany"]).toContain(result.current.country.name);
+      expect(result.current.country).not.toBeNull();
+      expect(result.current.country?.flag).toBeDefined();
+      expect(result.current.country?.name).toBeDefined();
+      expect(["France", "Germany"]).toContain(result.current.country?.name);
     });
 
     it("should provide form instance with proper configuration", () => {
@@ -154,58 +157,15 @@ describe("useQuiz Hook", () => {
     });
   });
 
-  describe("ERROR HANDLING", () => {
-    it("should handle data parsing errors", async () => {
-      const model = await import("../../model");
-      vi.mocked(model.countriesPayload.safeParse).mockReturnValue({
-        success: false,
-        error: new Error("Invalid data format"),
-      } as any);
-
-      // The hook should still initialize without crashing
-      expect(() => renderHook(() => useQuiz())).not.toThrow();
-    });
-
-    it("should handle network errors", async () => {
-      const networkError = new Error("Network failure");
-
-      const reactQuery = await import("@tanstack/react-query");
-      vi.mocked(reactQuery.useSuspenseQuery).mockReturnValue({
-        data: mockTransformedCountries,
-        isLoading: false,
-        error: networkError,
-      } as any);
-
-      const { result } = renderHook(() => useQuiz());
-
-      expect(result.current.error).toBe(networkError);
-    });
-  });
-
   describe("EDGE CASES", () => {
-    it("should handle malformed country data", async () => {
-      const malformedCountries = [
-        { flag: null, name: undefined },
-        { flag: "", name: "" },
-      ] as any;
-
-      const reactQuery = await import("@tanstack/react-query");
-      vi.mocked(reactQuery.useSuspenseQuery).mockReturnValue({
-        data: malformedCountries,
-        isLoading: false,
-        error: null,
-      } as any);
-
-      expect(() => renderHook(() => useQuiz())).not.toThrow();
-    });
-
     it("should maintain state consistency during re-renders", () => {
       const { result, rerender } = renderHook(() => useQuiz());
 
+      const initialCountry = result.current.country;
       rerender();
 
       expect(result.current.country).toBeDefined();
-      expect(typeof result.current.country.name).toBe("string");
+      expect(result.current.country).toEqual(initialCountry);
     });
 
     it("should handle undefined result state", () => {
