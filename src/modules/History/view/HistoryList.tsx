@@ -10,7 +10,7 @@ import {
 import type { HistoryListProps } from "../model";
 import React from "react";
 
-export const HistoryList: React.FC<HistoryListProps> = ({ history }) => {
+export const HistoryList: React.FC<HistoryListProps> = ({ history, error }) => {
   return (
     <List>
       {history.map((record, idx) => (
