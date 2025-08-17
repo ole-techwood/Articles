@@ -39,7 +39,7 @@ export const useQuiz = () => {
       // Parse the data from the repository
       const payload = countriesPayload.safeParse(countries.data);
 
-      // TanStack Query will handle this throw and append it to the error
+      // In Suspense mode, thrown errors are caught by your error boundary
       if (!payload.success) {
         throw new Error(
           "We've received an incorrect data from our countries provider. We're already fixing this error, please try again in 15 minutes.",
@@ -60,6 +60,7 @@ export const useQuiz = () => {
   // Select one random country
   // This may occasionally give the same country again. You can customize the randomizer to exclude the current one if needed.
   const randomCountry = useMemo(
+    // TODO: Add empty-array guard, just in case the rest countries provider ever returns empty array
     () => countries[Math.floor(Math.random() * countries.length)],
     [countries]
   );
@@ -110,6 +111,7 @@ export const useQuiz = () => {
       setResult(dto);
 
       // Save the result
+      // TODO: saving to localStorage can fail, add try/catch if you need it
       historyRepository.saveAnswer(historyDto.data);
     },
   });

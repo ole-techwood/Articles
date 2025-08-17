@@ -4,9 +4,9 @@ import { historySlice } from "./history.slice";
 /**
  * Repository for managing history in browser storage.
  */
-class HistoryRepository {
+export class HistoryRepository {
   /**
-   * Service used to access the data.
+   * Slice used to access the data.
    */
   private readonly slice: typeof historySlice;
 
