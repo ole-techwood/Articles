@@ -15,7 +15,7 @@ export type ButtonProps = MuiButtonProps & {
   $shape?: "round" | "square";
 };
 
-export const Button = styled(MuiButton, { shouldForwardProp })<ButtonProps>(
+const Button = styled(MuiButton, { shouldForwardProp })<ButtonProps>(
   ({ $shape = "square" }) => {
     const shapeStyle = {
       round: {
@@ -27,3 +27,7 @@ export const Button = styled(MuiButton, { shouldForwardProp })<ButtonProps>(
     return shapeStyle[$shape];
   }
 );
+
+export const Styled = {
+  Button,
+};
