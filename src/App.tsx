@@ -1,8 +1,15 @@
-import { Box } from "@mui/material";
-import "./App.css";
+import { Stack } from "@mui/material";
+import { Button } from "./Button";
 
 function App() {
-  return <Box>Hello World!</Box>;
+  return (
+    <Stack p={2} spacing={1} sx={{ width: 100 }}>
+      <Button variant="contained">Square</Button>
+      <Button variant="contained" $shape="round">
+        Round
+      </Button>
+    </Stack>
+  );
 }
 
 export default App;
