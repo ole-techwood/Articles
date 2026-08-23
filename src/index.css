@@ -1,0 +1,25 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+@import '@fontsource-variable/inter';
+
+:root {
+  --paper: #f7f0e4;
+  --paper-deep: #eee3d0;
+  --olive: #28352c;
+  --tomato: #c84b35;
+  --charcoal: #25221d;
+  --sans: 'Inter Variable', sans-serif;
+  --serif: Georgia, 'Times New Roman', serif;
+  font-family: var(--sans);
+  color: var(--charcoal);
+  background: var(--paper);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { min-width: 320px; min-height: 100%; margin: 0; }
+body { background: var(--paper); }
+button { font-family: inherit; }
