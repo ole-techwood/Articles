@@ -1,32 +1,6 @@
-# React MVVM Architecture with TanStack Router
+# Articles
 
-To run this application:
+Source code to all my articles:
 
-```bash
-pnpm install
-pnpm start
-```
-
-## Testing
-
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
-
-```bash
-pnpm test
-```
-
-## Routing
-
-This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a file based router. Which means that the routes are managed as files in `src/routes`.
-
-## Querying
-
-This project uses [TanStack Query](https://tanstack.com/query/latest) to send requests to the API.
-
-## State Management
-
-This project uses [Zustand](https://zustand.docs.pmnd.rs/getting-started/introduction) to store global state.
-
-## Form Handling
-
-This project uses [TanStack Form](https://tanstack.com/form/latest/docs/overview) to handle all the forms.
+- [React MVVM Architecture with TanStack Router](https://techwood.substack.com/p/react-mvvm-with-tanstack-router?r=5uvuls&utm_campaign=post-expanded-share&utm_medium=web)
+- [Three React MUI commandments](https://techwood.substack.com/p/three-react-mui-commandments?r=5uvuls&utm_campaign=post-expanded-share&utm_medium=web)
