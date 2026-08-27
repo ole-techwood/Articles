@@ -1,31 +1,25 @@
-import type { Category } from "../lib/data";
+import type { Category } from "@/ui/lib/data";
 
 type CategoryNavProps = {
   categories: Category[];
-  categoryIndex: number;
+  activeIndex: number;
   onSelect: (index: number) => void;
 };
 
-export function CategoryNav({
-  categories,
-  categoryIndex,
-  onSelect,
-}: Readonly<CategoryNavProps>) {
+export function CategoryNav({ categories, activeIndex, onSelect }: CategoryNavProps) {
   return (
-    <nav className="category-nav" aria-label="Menu categories">
-      {categories.map((entry, index) => (
+    <nav className="category-nav" aria-label="Menu Categories">
+      {categories.map((category, index) => (
         <button
-          className={`story-circle ${index === categoryIndex ? "is-active" : ""}`}
-          key={entry.name}
+          className={`story-circle ${index === activeIndex ? "is-active" : ""}`}
+          key={category.name}
           type="button"
-          aria-label={`View ${entry.name} menu`}
-          aria-current={index === categoryIndex ? "page" : undefined}
+          aria-label={`View ${category.name} menu`}
+          aria-pressed={index === activeIndex}
           onClick={() => onSelect(index)}
         >
-          <span className="circle-emoji" aria-hidden="true">
-            {entry.emoji}
-          </span>
-          <span>{entry.name}</span>
+          <span className="story-circle-emoji" aria-hidden="true">{category.emoji}</span>
+          <span>{category.name}</span>
         </button>
       ))}
     </nav>

@@ -1,26 +1,18 @@
-import { Pause, Play } from "lucide-react";
-import { Button } from "./ui/button";
+import { Pause, Play, RotateCcw } from "lucide-react";
 
 type PlaybackToggleProps = {
   playing: boolean;
+  atEnd: boolean;
   onToggle: () => void;
 };
 
-export function PlaybackToggle({
-  playing,
-  onToggle,
-}: Readonly<PlaybackToggleProps>) {
+export function PlaybackToggle({ playing, atEnd, onToggle }: PlaybackToggleProps) {
+  const label = atEnd ? "Replay Story Sequence" : playing ? "Pause playback" : "Resume playback";
+  const Icon = atEnd ? RotateCcw : playing ? Pause : Play;
+
   return (
-    <Button
-      className="playback-control"
-      variant="outline"
-      size="icon"
-      type="button"
-      aria-label={playing ? "Pause story playback" : "Play story playback"}
-      aria-pressed={!playing}
-      onClick={onToggle}
-    >
-      {playing ? <Pause aria-hidden="true" /> : <Play aria-hidden="true" />}
-    </Button>
+    <button className="playback-toggle" type="button" aria-label={label} onClick={onToggle}>
+      <Icon aria-hidden="true" />
+    </button>
   );
 }

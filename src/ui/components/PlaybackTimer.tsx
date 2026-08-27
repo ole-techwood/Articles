@@ -1,32 +1,32 @@
-import { duration } from "../lib/usePlayback";
+import { STORY_DURATION } from "@/ui/lib/usePlayback";
 
 type PlaybackTimerProps = {
-  storyIndex: number;
   storyCount: number;
+  storyIndex: number;
   elapsed: number;
 };
 
-export function PlaybackTimer({
-  storyIndex,
-  storyCount,
-  elapsed,
-}: Readonly<PlaybackTimerProps>) {
+export function PlaybackTimer({ storyCount, storyIndex, elapsed }: PlaybackTimerProps) {
+  const progress = Math.min(100, (elapsed / STORY_DURATION) * 100);
+
   return (
-    <>
-      <progress
-        className="timer-progress"
-        aria-label={`${storyIndex + 1} of ${storyCount} stories shown`}
-        max={duration}
-        value={elapsed}
-      />
-      <div className="timer" aria-hidden="true">
-        <span className="timer-track">
-          <span
-            className="timer-fill"
-            style={{ width: `${(elapsed / duration) * 100}%` }}
-          />
-        </span>
-      </div>
-    </>
+    <div className="progress-timer" aria-label={`Story ${storyIndex + 1} of ${storyCount}`}>
+      {Array.from({ length: storyCount }, (_, index) => {
+        const value = index < storyIndex ? 100 : index === storyIndex ? progress : 0;
+        return (
+          <div
+            className="progress-segment"
+            key={index}
+            role="progressbar"
+            aria-label={`Story ${index + 1} progress`}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(value)}
+          >
+            <span style={{ width: `${value}%` }} />
+          </div>
+        );
+      })}
+    </div>
   );
 }

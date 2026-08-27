@@ -133,18 +133,18 @@ This specification defines the complete MVP. Implementation should preserve the 
 
 ## Commands and Operations
 
-Run commands from repository root with `bun`.
+Run commands from repository root with `pnpm`.
 
 ```text
-Install dependencies: bun install
-Start development server: bun run dev
-Build production bundle: bun run build
-Run linter: bun run lint
-Preview production build: bun run preview
-Run tests: bunx vitest run
+Install dependencies: pnpm install
+Start development server: pnpm run dev
+Build production bundle: pnpm run build
+Run linter: pnpm run lint
+Preview production build: pnpm run preview
+Run tests: pnpm test
 ```
 
-A completed change must pass `bun run build`, `bun run lint`, and `bunx vitest run`. The development server is used for responsive and interaction checks in a browser.
+A completed change must pass `pnpm run build`, `pnpm run lint`, and `pnpm test`. The development server is used for responsive and interaction checks in a browser.
 
 ## Project Structure
 
@@ -265,7 +265,7 @@ The specification is fulfilled when all conditions below are true:
 9. Automated tests cover initial state, Category selection, manual boundaries, timed progression, pause/resume, replay, touch pause, and required content.
 10. Changing the active Story or Category updates calories, protein, carbohydrates, and fat from the newly active Menu Item's Nutrition Facts.
 11. The approved static sample Menu Items and Nutrition Facts remain unchanged as article-demo content.
-12. `bun run build`, `bun run lint`, and `bunx vitest run` pass.
+12. `pnpm run build`, `pnpm run lint`, and `pnpm test` pass.
 13. No in-scope interaction exposes ordering, payment, account, staff, or health workflows.
 
 ## Open Questions

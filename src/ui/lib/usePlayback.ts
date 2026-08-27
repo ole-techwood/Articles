@@ -1,89 +1,103 @@
 import { useEffect, useRef, useState } from "react";
-import type { Category } from "./data";
 
-export const duration = 6000;
+import { categories } from "./data";
 
-type Direction = -1 | 1;
+export const STORY_DURATION = 6000;
 
-export function usePlayback(categories: Category[]) {
+export function usePlayback() {
   const [categoryIndex, setCategoryIndex] = useState(0);
   const [storyIndex, setStoryIndex] = useState(0);
   const [elapsed, setElapsed] = useState(0);
   const [playing, setPlaying] = useState(true);
-  const [temporaryPause, setTemporaryPause] = useState(false);
-  const category = categories[categoryIndex];
-  const current = category.items[storyIndex];
-  const atEnd = storyIndex === category.items.length - 1;
-  const elapsedRef = useRef(elapsed);
-  const storyIndexRef = useRef(storyIndex);
+  const touchWasPlaying = useRef(false);
+  const elapsedRef = useRef(0);
+  const storyIndexRef = useRef(0);
+
+  const currentCategory = categories[categoryIndex];
+  const atEnd = storyIndex === currentCategory.items.length - 1 && !playing;
 
   useEffect(() => {
     elapsedRef.current = elapsed;
     storyIndexRef.current = storyIndex;
   }, [elapsed, storyIndex]);
 
-  const move = (direction: Direction) => {
-    const next = Math.max(
-      0,
-      Math.min(storyIndex + direction, category.items.length - 1),
-    );
-    setStoryIndex(next);
-    setElapsed(0);
-    setPlaying(true);
-  };
-
   useEffect(() => {
-    if (!playing || temporaryPause) return;
-    const timer = setInterval(() => {
+    if (!playing) return;
+
+    const timer = window.setInterval(() => {
       const nextElapsed = elapsedRef.current + 100;
-      if (nextElapsed < duration) {
+      if (nextElapsed < STORY_DURATION) {
         elapsedRef.current = nextElapsed;
         setElapsed(nextElapsed);
         return;
       }
 
-      if (storyIndexRef.current >= category.items.length - 1) {
-        elapsedRef.current = duration;
-        setElapsed(duration);
-        setPlaying(false);
+      if (storyIndexRef.current < currentCategory.items.length - 1) {
+        const nextStoryIndex = storyIndexRef.current + 1;
+        storyIndexRef.current = nextStoryIndex;
+        elapsedRef.current = 0;
+        setStoryIndex(nextStoryIndex);
+        setElapsed(0);
         return;
       }
 
-      const next = storyIndexRef.current + 1;
-      storyIndexRef.current = next;
-      elapsedRef.current = 0;
-      setStoryIndex(next);
-      setElapsed(0);
+      elapsedRef.current = STORY_DURATION;
+      setElapsed(STORY_DURATION);
+      setPlaying(false);
     }, 100);
-    return () => clearInterval(timer);
-  }, [category.items.length, categoryIndex, playing, temporaryPause]);
 
-  const selectCategory = (index: number) => {
-    setCategoryIndex(index);
+    return () => window.clearInterval(timer);
+  }, [currentCategory.items.length, playing]);
+
+  const selectCategory = (nextCategoryIndex: number) => {
+    setCategoryIndex(nextCategoryIndex);
     setStoryIndex(0);
     setElapsed(0);
     setPlaying(true);
   };
 
-  const replay = () => {
-    setStoryIndex(0);
+  const navigateToStory = (nextStoryIndex: number) => {
+    const boundedStoryIndex = Math.max(
+      0,
+      Math.min(nextStoryIndex, currentCategory.items.length - 1),
+    );
+    setStoryIndex(boundedStoryIndex);
     setElapsed(0);
     setPlaying(true);
+  };
+
+  const togglePlayback = () => {
+    if (atEnd) {
+      setStoryIndex(0);
+      setElapsed(0);
+      setPlaying(true);
+      return;
+    }
+    setPlaying((currentPlaying) => !currentPlaying);
+  };
+
+  const beginTouchPause = () => {
+    touchWasPlaying.current = playing;
+    if (playing) setPlaying(false);
+  };
+
+  const endTouchPause = () => {
+    if (touchWasPlaying.current) setPlaying(true);
+    touchWasPlaying.current = false;
   };
 
   return {
-    category,
     categoryIndex,
-    current,
+    storyIndex,
     elapsed,
     playing,
-    storyIndex,
-    temporaryPause,
     atEnd,
-    move,
-    replay,
+    currentCategory,
+    currentItem: currentCategory.items[storyIndex],
     selectCategory,
-    setTemporaryPause,
-    setPlaying,
+    navigateToStory,
+    togglePlayback,
+    beginTouchPause,
+    endTouchPause,
   };
 }

@@ -1,40 +1,26 @@
-import type { Item } from "../lib/data";
+import type { MenuItem } from "@/ui/lib/data";
 
-type StoryContentProps = { item: Item };
+type StoryContentProps = {
+  item: MenuItem;
+};
 
-export function StoryContent({ item }: Readonly<StoryContentProps>) {
+export function StoryContent({ item }: StoryContentProps) {
   return (
     <article className="story-content">
-      <div className="story-kicker">From Mamma's kitchen</div>
-      <div className="story-heading-row">
-        <h1>{item.name}</h1>
-        <span className="price">€{item.price}</span>
-      </div>
-      <p className="description">{item.description}</p>
-      <div className="ingredients-block">
-        <p className="label">Made with</p>
-        <p className="ingredients">{item.ingredients}</p>
-      </div>
-      <div className="story-footer">
-        <div>
-          <p className="label">Nutrition facts</p>
-          <p className="per-serving">Per serving</p>
-        </div>
-        <div className="nutrition-grid">
-          <span>
-            <strong>{item.nutrition.calories}</strong> kcal
-          </span>
-          <span>
-            <strong>{item.nutrition.protein}g</strong> protein
-          </span>
-          <span>
-            <strong>{item.nutrition.carbohydrates}g</strong> carbs
-          </span>
-          <span>
-            <strong>{item.nutrition.fat}g</strong> fat
-          </span>
-        </div>
-      </div>
+      <div className="story-kicker">From the wood-fired kitchen</div>
+      <h2>{item.name}</h2>
+      <p className="story-description">{item.description}</p>
+      <p className="ingredients">{item.ingredients}</p>
+      <p className="price">€{item.price.toFixed(2)}</p>
+      <section className="nutrition" aria-label="Nutrition Facts per serving">
+        <p className="nutrition-title">Nutrition Facts <span>per serving</span></p>
+        <dl>
+          <div><dt>Calories</dt><dd>{item.nutrition.calories} kcal</dd></div>
+          <div><dt>Protein</dt><dd>{item.nutrition.protein}g</dd></div>
+          <div><dt>Carbs</dt><dd>{item.nutrition.carbohydrates}g</dd></div>
+          <div><dt>Fat</dt><dd>{item.nutrition.fat}g</dd></div>
+        </dl>
+      </section>
     </article>
   );
 }

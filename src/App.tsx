@@ -1,34 +1,30 @@
+import { CategoryNav } from "@/ui/components/CategoryNav";
+import { SiteHeader } from "@/ui/components/SiteHeader";
+import { StoryFrame } from "@/ui/components/StoryFrame";
+import { categories } from "@/ui/lib/data";
+import { usePlayback } from "@/ui/lib/usePlayback";
+
 import "./App.css";
-import { CategoryNav } from "./ui/components/CategoryNav";
-import { SiteHeader } from "./ui/components/SiteHeader";
-import { StoryFrame } from "./ui/components/StoryFrame";
-import { categories } from "./ui/lib/data";
-import { usePlayback } from "./ui/lib/usePlayback";
 
 function App() {
-  const playback = usePlayback(categories);
+  const playback = usePlayback();
 
   return (
     <main className="menu-browser">
       <SiteHeader />
-      <CategoryNav
-        categories={categories}
-        categoryIndex={playback.categoryIndex}
-        onSelect={playback.selectCategory}
-      />
+      <CategoryNav categories={categories} activeIndex={playback.categoryIndex} onSelect={playback.selectCategory} />
       <StoryFrame
-        categoryName={playback.category.name}
-        item={playback.current}
+        category={playback.currentCategory}
+        item={playback.currentItem}
         storyIndex={playback.storyIndex}
-        storyCount={playback.category.items.length}
         elapsed={playback.elapsed}
         playing={playback.playing}
         atEnd={playback.atEnd}
-        onMove={playback.move}
-        onReplay={playback.replay}
-        onSetPlaying={playback.setPlaying}
-        temporaryPause={playback.temporaryPause}
-        onSetTemporaryPause={playback.setTemporaryPause}
+        onToggle={playback.togglePlayback}
+        onPrevious={() => playback.navigateToStory(playback.storyIndex - 1)}
+        onNext={() => playback.navigateToStory(playback.storyIndex + 1)}
+        onTouchStart={playback.beginTouchPause}
+        onTouchEnd={playback.endTouchPause}
       />
     </main>
   );

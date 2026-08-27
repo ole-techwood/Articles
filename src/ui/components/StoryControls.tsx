@@ -1,45 +1,22 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "./ui/button";
 
 type StoryControlsProps = {
   storyIndex: number;
   storyCount: number;
-  onMove: (direction: -1 | 1) => void;
+  onPrevious: () => void;
+  onNext: () => void;
 };
 
-export function StoryControls({
-  storyIndex,
-  storyCount,
-  onMove,
-}: Readonly<StoryControlsProps>) {
-  const atStart = storyIndex === 0;
-  const atEnd = storyIndex === storyCount - 1;
-
+export function StoryControls({ storyIndex, storyCount, onPrevious, onNext }: StoryControlsProps) {
   return (
     <div className="story-controls" aria-label="Story navigation">
-      <Button
-        type="button"
-        variant="outline"
-        size="icon"
-        aria-label="Previous story"
-        disabled={atStart}
-        onClick={() => onMove(-1)}
-      >
+      <button type="button" aria-label="Previous story" disabled={storyIndex === 0} onClick={onPrevious}>
         <ChevronLeft aria-hidden="true" />
-      </Button>
-      <span>
-        {storyIndex + 1} / {storyCount}
-      </span>
-      <Button
-        type="button"
-        variant="outline"
-        size="icon"
-        aria-label="Next story"
-        disabled={atEnd}
-        onClick={() => onMove(1)}
-      >
+      </button>
+      <span>{storyIndex + 1} / {storyCount}</span>
+      <button type="button" aria-label="Next story" disabled={storyIndex === storyCount - 1} onClick={onNext}>
         <ChevronRight aria-hidden="true" />
-      </Button>
+      </button>
     </div>
   );
 }

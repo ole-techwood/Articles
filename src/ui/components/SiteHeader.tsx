@@ -1,11 +1,9 @@
 export function SiteHeader() {
   return (
     <header className="site-header">
-      <p className="eyebrow">An evening at</p>
-      <p className="wordmark">
-        Mamma Pizza<span>!</span>
-      </p>
-      <p className="header-note">Family recipes · Since always</p>
+      <p className="eyebrow">Mamma Pizza!</p>
+      <h1>Una tavola, tante storie.</h1>
+      <p className="intro">A little tour through our family menu.</p>
     </header>
   );
 }

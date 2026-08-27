@@ -1,120 +1,90 @@
-import {
-  act,
-  cleanup,
-  fireEvent,
-  render,
-  screen,
-} from "@testing-library/react";
+// @vitest-environment jsdom
+
+import { cleanup, fireEvent, render, renderHook, screen, act } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
 import App from "./App";
+import { categories } from "./ui/lib/data";
+import { STORY_DURATION, usePlayback } from "./ui/lib/usePlayback";
 
-describe("Mamma Pizza Menu Browser", () => {
-  afterEach(() => {
-    cleanup();
-    vi.useRealTimers();
-  });
+afterEach(() => cleanup());
 
-  test("opens on Pizza with Margherita as Featured Dish", () => {
-    render(<App />);
+describe("menu data", () => {
+	it("opens with Margherita and distinct per-serving nutrition facts", () => {
+		const margherita = categories[0].items[0];
+		const nutritionValues = categories.flatMap((category) =>
+			category.items.map((item) => Object.values(item.nutrition).join("-")),
+		);
 
-    expect(screen.getByRole("heading", { name: "Margherita" })).toBeVisible();
-    expect(screen.getByText("Pizza")).toBeVisible();
-    expect(screen.getByText("Tomato, fior di latte, basil")).toBeVisible();
-    expect(screen.getByText("€12")).toBeVisible();
-    expect(screen.getByText("Per serving")).toBeVisible();
-  });
+		expect(margherita.name).toBe("Margherita");
+		expect(margherita.nutrition).toEqual({
+			calories: 720,
+			protein: 28,
+			carbohydrates: 82,
+			fat: 29,
+		});
+		expect(new Set(nutritionValues).size).toBe(18);
+	});
+});
 
-  test("switches Category through Story Circles and starts at first Story", () => {
-    render(<App />);
+describe("usePlayback", () => {
+	it("advances stories after six seconds and stops at the final story", () => {
+		vi.useFakeTimers();
+		const { result } = renderHook(() => usePlayback());
 
-    fireEvent.click(screen.getByRole("button", { name: "View Pasta menu" }));
+		act(() => vi.advanceTimersByTime(STORY_DURATION));
+		expect(result.current.storyIndex).toBe(1);
 
-    expect(screen.getByRole("heading", { name: "Cacio e Pepe" })).toBeVisible();
-    expect(screen.getByText("Pasta")).toBeVisible();
-    expect(
-      screen.getByRole("region", { name: "Pasta story 1 of 3" }),
-    ).toBeVisible();
-  });
+		act(() => vi.advanceTimersByTime(STORY_DURATION * 2));
+		expect(result.current.storyIndex).toBe(2);
+		expect(result.current.elapsed).toBe(STORY_DURATION);
+		expect(result.current.playing).toBe(false);
+		vi.useRealTimers();
+	});
+});
 
-  test("browses Stories manually and respects sequence boundaries", () => {
-    render(<App />);
+describe("Menu Browser", () => {
+	it("renders Margherita and its nutrition facts initially", () => {
+		render(<App />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Next story" }));
-    expect(screen.getByRole("heading", { name: "Piccante" })).toBeVisible();
+		expect(screen.getByRole("heading", { name: "Margherita" })).toBeInTheDocument();
+		expect(screen.getByText("720 kcal")).toBeInTheDocument();
+		expect(screen.getByText("28g")).toBeInTheDocument();
+		expect(screen.getByText("82g")).toBeInTheDocument();
+		expect(screen.getByText("29g")).toBeInTheDocument();
+		expect(screen.getAllByRole("progressbar")).toHaveLength(3);
+	});
 
-    fireEvent.click(screen.getByRole("button", { name: "Previous story" }));
-    expect(screen.getByRole("heading", { name: "Margherita" })).toBeVisible();
+	it("selects a Category and keeps manual navigation within its Story Sequence", () => {
+		render(<App />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Previous story" }));
-    expect(screen.getByRole("heading", { name: "Margherita" })).toBeVisible();
-  });
+		fireEvent.click(screen.getByRole("button", { name: /Pasta/ }));
+		expect(screen.getByRole("heading", { name: "Cacio e Pepe" })).toBeInTheDocument();
+		expect(screen.getByText("640 kcal")).toBeInTheDocument();
 
-  test("advances after six seconds and stops on final Story", () => {
-    vi.useFakeTimers();
-    render(<App />);
+		fireEvent.click(screen.getAllByRole("button", { name: "Previous story" })[0]);
+		expect(screen.getByRole("heading", { name: "Cacio e Pepe" })).toBeInTheDocument();
 
-    act(() => {
-      vi.advanceTimersByTime(6000);
-    });
-    expect(screen.getByRole("heading", { name: "Piccante" })).toBeVisible();
+		fireEvent.click(screen.getAllByRole("button", { name: "Next story" })[0]);
+		expect(screen.getByRole("heading", { name: "Tagliatelle al Ragù" })).toBeInTheDocument();
+	});
 
-    act(() => {
-      vi.advanceTimersByTime(6000);
-    });
-    expect(screen.getByRole("heading", { name: "Ortolana" })).toBeVisible();
-    expect(
-      screen.getByRole("button", { name: "Pause story playback" }),
-    ).toBeVisible();
+	it("pauses while touch is held and replays after the final Story", () => {
+		vi.useFakeTimers();
+		render(<App />);
+		const frame = screen.getByRole("region", { name: /Pizza story 1 of 3/ });
 
-    act(() => {
-      vi.advanceTimersByTime(6000);
-    });
-    expect(
-      screen.getByRole("button", { name: "Play story playback" }),
-    ).toBeVisible();
-    expect(screen.getByRole("progressbar")).toHaveAttribute("value", "6000");
-  });
-
-  test("pauses and resumes automatic playback with top-right control", () => {
-    vi.useFakeTimers();
-    render(<App />);
-
-    fireEvent.click(
-      screen.getByRole("button", { name: "Pause story playback" }),
-    );
-    act(() => {
-      vi.advanceTimersByTime(6000);
-    });
-    expect(screen.getByRole("heading", { name: "Margherita" })).toBeVisible();
-
-    fireEvent.click(
-      screen.getByRole("button", { name: "Play story playback" }),
-    );
-    act(() => {
-      vi.advanceTimersByTime(6000);
-    });
-    expect(screen.getByRole("heading", { name: "Piccante" })).toBeVisible();
-  });
-
-  test("pauses automatic playback while touch is held", () => {
-    vi.useFakeTimers();
-    render(<App />);
-
-    fireEvent.touchStart(
-      screen.getByRole("region", { name: "Pizza story 1 of 3" }),
-    );
-    act(() => {
-      vi.advanceTimersByTime(6000);
-    });
-    expect(screen.getByRole("heading", { name: "Margherita" })).toBeVisible();
-
-    fireEvent.touchEnd(
-      screen.getByRole("region", { name: "Pizza story 1 of 3" }),
-    );
-    act(() => {
-      vi.advanceTimersByTime(6000);
-    });
-    expect(screen.getByRole("heading", { name: "Piccante" })).toBeVisible();
-  });
+		fireEvent.touchStart(frame);
+		act(() => vi.advanceTimersByTime(7000));
+		expect(screen.getByRole("heading", { name: "Margherita" })).toBeInTheDocument();
+		fireEvent.touchEnd(frame);
+		act(() => vi.advanceTimersByTime(6000));
+		act(() => vi.advanceTimersByTime(6000));
+		act(() => vi.advanceTimersByTime(6000));
+		expect(screen.getByRole("heading", { name: "Ortolana" })).toBeInTheDocument();
+		fireEvent.click(screen.getByRole("button", { name: "Replay Story Sequence" }));
+		expect(screen.getByRole("heading", { name: "Margherita" })).toBeInTheDocument();
+		vi.useRealTimers();
+	});
 });
