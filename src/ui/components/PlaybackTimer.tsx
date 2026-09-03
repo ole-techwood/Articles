@@ -3,7 +3,10 @@ type PlaybackTimerProps = {
   storyIndex: number;
 };
 
-export function PlaybackTimer({ storyCount, storyIndex }: PlaybackTimerProps) {
+export function PlaybackTimer({
+  storyCount,
+  storyIndex,
+}: Readonly<PlaybackTimerProps>) {
   return (
     <div
       className="progress-timer"
