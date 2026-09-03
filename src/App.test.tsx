@@ -56,6 +56,66 @@ describe("Menu Browser", () => {
     ).toBeInTheDocument();
   });
 
+  it("updates Nutrition Facts when Story changes", () => {
+    render(<App />);
+
+    fireEvent.click(screen.getAllByRole("button", { name: "Next story" })[1]);
+
+    expect(
+      screen.getByRole("heading", { name: "Piccante" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("880 kcal")).toBeInTheDocument();
+    expect(screen.getByText("37g")).toBeInTheDocument();
+    expect(screen.getByText("79g")).toBeInTheDocument();
+    expect(screen.getByText("45g")).toBeInTheDocument();
+  });
+
+  it("navigates to the next and previous Category at Story Sequence boundaries", () => {
+    render(<App />);
+
+    const nextStory = screen.getAllByRole("button", { name: "Next story" })[1];
+    fireEvent.click(nextStory);
+    fireEvent.click(nextStory);
+    expect(
+      screen.getByRole("heading", { name: "Ortolana" }),
+    ).toBeInTheDocument();
+
+    fireEvent.click(nextStory);
+    expect(
+      screen.getByRole("heading", { name: "Focaccia al Rosmarino" }),
+    ).toBeInTheDocument();
+
+    const previousStory = screen.getAllByRole("button", {
+      name: "Previous story",
+    })[1];
+    fireEvent.click(previousStory);
+    expect(
+      screen.getByRole("heading", { name: "Ortolana" }),
+    ).toBeInTheDocument();
+  });
+
+  it("navigates Stories with arrow keys", () => {
+    render(<App />);
+    expect(
+      screen.getByRole("region", { name: /story 1 of/ }),
+    ).not.toHaveAttribute("tabindex");
+
+    const nextStory = screen.getAllByRole("button", { name: "Next story" })[1];
+    const previousStory = screen.getAllByRole("button", {
+      name: "Previous story",
+    })[1];
+
+    fireEvent.keyDown(nextStory, { key: "ArrowRight" });
+    expect(
+      screen.getByRole("heading", { name: "Piccante" }),
+    ).toBeInTheDocument();
+
+    fireEvent.keyDown(previousStory, { key: "ArrowLeft" });
+    expect(
+      screen.getByRole("heading", { name: "Margherita" }),
+    ).toBeInTheDocument();
+  });
+
   it("keeps selected progress filled without autoplay", () => {
     render(<App />);
 

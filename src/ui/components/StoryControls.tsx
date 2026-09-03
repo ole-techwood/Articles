@@ -17,6 +17,17 @@ export function StoryControls({
   onPrevious,
   onNext,
 }: StoryControlsProps) {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      onPrevious();
+    }
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      onNext();
+    }
+  };
+
   return (
     <div className="story-controls" aria-label="Story navigation">
       <button
@@ -24,6 +35,7 @@ export function StoryControls({
         aria-label="Previous story"
         disabled={isFirstStory}
         onClick={onPrevious}
+        onKeyDown={handleKeyDown}
       >
         <ChevronLeft aria-hidden="true" />
       </button>
@@ -35,6 +47,7 @@ export function StoryControls({
         aria-label="Next story"
         disabled={isLastStory}
         onClick={onNext}
+        onKeyDown={handleKeyDown}
       >
         <ChevronRight aria-hidden="true" />
       </button>

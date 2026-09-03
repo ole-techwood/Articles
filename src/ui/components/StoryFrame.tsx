@@ -22,7 +22,18 @@ export function StoryFrame({
   isLastStory,
   onPrevious,
   onNext,
-}: StoryFrameProps) {
+}: Readonly<StoryFrameProps>) {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      onPrevious();
+    }
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      onNext();
+    }
+  };
+
   return (
     <section
       className="story-frame"
@@ -40,6 +51,7 @@ export function StoryFrame({
         aria-label="Previous story"
         disabled={isFirstStory}
         onClick={onPrevious}
+        onKeyDown={handleKeyDown}
       />
       <button
         className="tap-zone tap-zone-right"
@@ -47,6 +59,7 @@ export function StoryFrame({
         aria-label="Next story"
         disabled={isLastStory}
         onClick={onNext}
+        onKeyDown={handleKeyDown}
       />
       <StoryContent item={item} />
       <StoryControls
