@@ -1,18 +1,16 @@
-import { STORY_DURATION } from "@/ui/lib/usePlayback";
-
 type PlaybackTimerProps = {
   storyCount: number;
   storyIndex: number;
-  elapsed: number;
 };
 
-export function PlaybackTimer({ storyCount, storyIndex, elapsed }: PlaybackTimerProps) {
-  const progress = Math.min(100, (elapsed / STORY_DURATION) * 100);
-
+export function PlaybackTimer({ storyCount, storyIndex }: PlaybackTimerProps) {
   return (
-    <div className="progress-timer" aria-label={`Story ${storyIndex + 1} of ${storyCount}`}>
+    <div
+      className="progress-timer"
+      aria-label={`Story ${storyIndex + 1} of ${storyCount}`}
+    >
       {Array.from({ length: storyCount }, (_, index) => {
-        const value = index < storyIndex ? 100 : index === storyIndex ? progress : 0;
+        const value = index <= storyIndex ? 100 : 0;
         return (
           <div
             className="progress-segment"

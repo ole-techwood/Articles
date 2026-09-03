@@ -1,11 +1,12 @@
 .menu-browser {
   min-height: 100vh;
   padding: 3rem 1.5rem;
-  background: radial-gradient(circle at 15% 10%, #fffaf1 0, var(--paper) 38%), var(--paper);
+  background:
+    radial-gradient(circle at 15% 10%, #fffaf1 0, var(--paper) 38%),
+    var(--paper);
 }
 
 .site-header,
-.category-nav,
 .story-frame {
   width: min(100%, 30rem);
   margin-inline: auto;
@@ -45,6 +46,9 @@
 .category-nav {
   display: flex;
   gap: 0.85rem;
+  width: max-content;
+  max-width: 100%;
+  margin-inline: auto;
   margin-bottom: 1rem;
   overflow-x: auto;
   padding: 0.25rem 0.1rem 0.7rem;
@@ -73,7 +77,9 @@
   border-radius: 50%;
   background: #fffaf1;
   font-size: 1.4rem;
-  transition: transform 180ms ease, border-color 180ms ease;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease;
 }
 
 .story-circle:hover .story-circle-emoji,
@@ -269,8 +275,12 @@
   cursor: pointer;
 }
 
-.tap-zone-left { left: 0; }
-.tap-zone-right { right: 0; }
+.tap-zone-left {
+  left: 0;
+}
+.tap-zone-right {
+  right: 0;
+}
 
 button:focus-visible {
   outline: 3px solid #f3c36a;

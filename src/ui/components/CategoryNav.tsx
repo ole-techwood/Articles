@@ -6,7 +6,11 @@ type CategoryNavProps = {
   onSelect: (index: number) => void;
 };
 
-export function CategoryNav({ categories, activeIndex, onSelect }: CategoryNavProps) {
+export function CategoryNav({
+  categories,
+  activeIndex,
+  onSelect,
+}: Readonly<CategoryNavProps>) {
   return (
     <nav className="category-nav" aria-label="Menu Categories">
       {categories.map((category, index) => (
@@ -18,7 +22,9 @@ export function CategoryNav({ categories, activeIndex, onSelect }: CategoryNavPr
           aria-pressed={index === activeIndex}
           onClick={() => onSelect(index)}
         >
-          <span className="story-circle-emoji" aria-hidden="true">{category.emoji}</span>
+          <span className="story-circle-emoji" aria-hidden="true">
+            {category.emoji}
+          </span>
           <span>{category.name}</span>
         </button>
       ))}

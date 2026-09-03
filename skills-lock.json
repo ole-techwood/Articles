@@ -7,6 +7,12 @@
       "skillPath": "skills/engineering/ask-matt/SKILL.md",
       "computedHash": "0cd14026efa0330083cbc7adf590976c162b60e02f696a8dcce96f0b4dab8a72"
     },
+    "browser-testing-with-devtools": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/browser-testing-with-devtools/SKILL.md",
+      "computedHash": "639950ea71851d9c4919608cba8b6276cd1ba30cd82acdc4949c701537eed661"
+    },
     "caveman": {
       "source": "juliusbrussee/caveman",
       "sourceType": "github",
@@ -36,6 +42,12 @@
       "sourceType": "github",
       "skillPath": "skills/engineering/codebase-design/SKILL.md",
       "computedHash": "5a17552cc1482f1a40124bf4e6c9dbd90ac0dbb47e71c07d47369f9e5f2ae3b5"
+    },
+    "debugging-and-error-recovery": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/debugging-and-error-recovery/SKILL.md",
+      "computedHash": "1a119d27e8f1d27ed6317adf3115826336491346780dcb7d7a7a7f79fe3ffe10"
     },
     "diagnosing-bugs": {
       "source": "mattpocock/skills",

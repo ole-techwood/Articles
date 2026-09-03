@@ -12,19 +12,19 @@ function App() {
   return (
     <main className="menu-browser">
       <SiteHeader />
-      <CategoryNav categories={categories} activeIndex={playback.categoryIndex} onSelect={playback.selectCategory} />
+      <CategoryNav
+        categories={categories}
+        activeIndex={playback.categoryIndex}
+        onSelect={playback.selectCategory}
+      />
       <StoryFrame
         category={playback.currentCategory}
         item={playback.currentItem}
         storyIndex={playback.storyIndex}
-        elapsed={playback.elapsed}
-        playing={playback.playing}
-        atEnd={playback.atEnd}
-        onToggle={playback.togglePlayback}
+        isFirstStory={playback.isFirstStory}
+        isLastStory={playback.isLastStory}
         onPrevious={() => playback.navigateToStory(playback.storyIndex - 1)}
         onNext={() => playback.navigateToStory(playback.storyIndex + 1)}
-        onTouchStart={playback.beginTouchPause}
-        onTouchEnd={playback.endTouchPause}
       />
     </main>
   );
