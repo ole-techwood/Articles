@@ -2,14 +2,14 @@
 
 ## Overview
 
-Build the browse-only Menu Browser MVP for Mamma Pizza!, an imaginary Italian family trattoria, presented as an Instagram Stories-like browsing experience. The implementation builds on the existing React 19, TypeScript, Vite, and Tailwind CSS codebase. It provides static menu content across six categories (three stories per category), automated six-second progression per story, manual navigation, playback controls (pause/resume/replay), touch-hold pausing, dynamic per-serving nutrition facts, and a mobile full-screen / desktop portrait Story Frame layout.
+Build the browse-only Menu Browser MVP for Mamma Pizza!, an imaginary Italian family trattoria, presented as an Instagram Stories-like browsing experience. The implementation builds on the existing React 19, TypeScript, Vite, and Tailwind CSS codebase. It provides static menu content across six categories (three stories per category), manual navigation, dynamic per-serving nutrition facts, and a mobile full-screen / desktop portrait Story Frame layout.
 
 ## Architecture Decisions
 
 - **Package Manager**: `pnpm` (detected from `packageManager` in `package.json` and `pnpm-lock.yaml`).
 - **Data Architecture**: Static typed menu dataset in `src/ui/lib/data.ts` containing six `Category` entries, each with three `Item` entries. Each `Item` defines explicit per-serving `Nutrition` data (calories, protein, carbohydrates, fat) rather than shared mock defaults.
-- **State Engine**: Centralized in `usePlayback` custom hook. Manages active indices (`categoryIndex`, `storyIndex`), timer progression (`elapsed`), playback state (`playing`), touch pause state (`temporaryPause`), and boundary conditions (`atEnd`).
-- **Component Decomposition**: Presentation components (`CategoryNav`, `StoryFrame`, `StoryContent`, `PlaybackTimer`, `PlaybackToggle`, `StoryControls`, `SiteHeader`) receive explicit props and callbacks without directly mutating state.
+- **State Engine**: Centralized in `usePlayback` custom hook. Manages active indices (`categoryIndex`, `storyIndex`) and per-Category boundary conditions.
+- **Component Decomposition**: Presentation components (`CategoryNav`, `StoryFrame`, `StoryContent`, `PlaybackTimer`, `StoryControls`, `SiteHeader`) receive explicit props and callbacks without directly mutating state.
 - **Visual & Layout Design**: CSS variables defined in `src/index.css` for the Mamma Pizza! palette (warm paper, deep olive, tomato red, charcoal text). Responsive layout in `src/App.css` enforces 9:16 portrait phone container on desktop and full-screen layout on mobile screens.
 
 ## Dependency Graph
@@ -17,7 +17,7 @@ Build the browse-only Menu Browser MVP for Mamma Pizza!, an imaginary Italian fa
 ```text
 src/ui/lib/data.ts (Categories, Items, Nutrition data)
     │
-    ├── src/ui/lib/usePlayback.ts (Playback state engine & timers)
+    ├── src/ui/lib/usePlayback.ts (Story navigation state engine)
     │       │
     │       └── src/App.tsx (Main application container)
     │               │
@@ -26,7 +26,6 @@ src/ui/lib/data.ts (Categories, Items, Nutrition data)
     │               └── src/ui/components/StoryFrame.tsx
     │                       │
     │                       ├── src/ui/components/PlaybackTimer.tsx
-    │                       ├── src/ui/components/PlaybackToggle.tsx
     │                       ├── src/ui/components/StoryContent.tsx
     │                       └── src/ui/components/StoryControls.tsx
     │
@@ -70,14 +69,14 @@ src/ui/lib/data.ts (Categories, Items, Nutrition data)
 **Acceptance criteria:**
 
 - [ ] Timer displays one segment bar for each story in the active category sequence (3 segments total).
-- [ ] Completed stories show 100% filled segment bars; pending stories show 0% filled; active story segment fills according to `elapsed` time.
-- [ ] Accessible progress bar semantics (`role="progressbar"`, `aria-valuenow`, `aria-valuemax`, `aria-label`) are preserved for screen readers.
+- [ ] Completed stories show 100% filled segment bars; current story is marked active; pending stories show 0% filled.
+- [ ] Accessible progress position semantics (`role="progressbar"`, `aria-valuenow`, `aria-valuemax`, `aria-label`) are preserved for screen readers.
 
 **Verification:**
 
 - [ ] Tests pass: `pnpm run test`
 - [ ] Build succeeds: `pnpm run build`
-- [ ] Manual check: Verify timer bar shows 3 distinct progress segments during playback.
+- [ ] Manual check: Verify Progress Timer shows 3 distinct progress segments during manual navigation.
 
 **Dependencies:** Task 1
 
@@ -98,31 +97,30 @@ src/ui/lib/data.ts (Categories, Items, Nutrition data)
 
 ---
 
-### Phase 2: Playback State & Interactive Controls
+### Phase 2: Story Navigation & Interactive Controls
 
-## Task 3: Refine usePlayback Hook and PlaybackToggle Replay behavior
+## Task 3: Refine usePlayback Hook and Story boundary behavior
 
-**Description:** Ensure `src/ui/lib/usePlayback.ts` handles category switches, boundary boundaries, timer progress, touch hold pausing, and sequence replay. Update `src/ui/components/PlaybackToggle.tsx` to render a replay icon (`RotateCcw` or `RotateCw`) when playback reaches the end of a category sequence.
+**Description:** Ensure `src/ui/lib/usePlayback.ts` handles Category switches, manual Story navigation, and per-Category boundaries without advancing automatically or crossing into another Category.
 
 **Acceptance criteria:**
 
-- [ ] Category switching resets `storyIndex` to 0, resets `elapsed` to 0, and resumes playback.
-- [ ] Timer stops at 6000ms on story 3 without underflow/overflow or auto-looping.
-- [ ] `PlaybackToggle` displays play icon when paused, pause icon when playing, and replay icon when at final story (`atEnd` & not `playing`).
-- [ ] Replay action resets to story 0, resets elapsed time, and resumes automatic playback.
+- [ ] Category switching resets `storyIndex` to 0.
+- [ ] Previous and next navigation remain within selected Category's three Stories.
+- [ ] Boundary navigation preserves `categoryIndex`; reaching Story 1 or Story 3 never selects an adjacent Category.
+- [ ] Story navigation never advances automatically or crosses into another Category.
 
 **Verification:**
 
 - [ ] Tests pass: `pnpm run test`
 - [ ] Build succeeds: `pnpm run build`
-- [ ] Manual check: Play through to final story, verify icon switches to replay, and click replays sequence.
+- [ ] Manual check: Navigate through final Story, verify it remains visible until Reader navigates manually.
 
 **Dependencies:** Task 2
 
 **Files likely touched:**
 
 - `src/ui/lib/usePlayback.ts`
-- `src/ui/components/PlaybackToggle.tsx`
 
 **Estimated scope:** Small (2 files)
 
@@ -130,12 +128,11 @@ src/ui/lib/data.ts (Categories, Items, Nutrition data)
 
 ## Task 4: Complete StoryFrame touch zones, keyboard controls, and StoryControls
 
-**Description:** Integrate touch hold listeners, left/right tap zone buttons, keyboard left/right arrow navigation, and explicit disabled states on `StoryControls` in `StoryFrame.tsx` and `StoryControls.tsx`.
+**Description:** Integrate left/right tap zone buttons, keyboard left/right arrow navigation, and explicit disabled states on `StoryControls` in `StoryFrame.tsx` and `StoryControls.tsx`.
 
 **Acceptance criteria:**
 
-- [ ] Holding touch on `StoryFrame` pauses playback; releasing touch resumes playback if previously active.
-- [ ] Clicking/tapping left or right zone navigates to previous or next story without exceeding boundaries.
+- [ ] Clicking/tapping left or right zone navigates to previous or next story without exceeding boundaries or changing Category.
 - [ ] Left/Right Arrow keys navigate stories when focusing story controls or zones.
 - [ ] Previous button disabled on story 1; Next button disabled on story 3.
 
@@ -143,7 +140,7 @@ src/ui/lib/data.ts (Categories, Items, Nutrition data)
 
 - [ ] Tests pass: `pnpm run test`
 - [ ] Build succeeds: `pnpm run build`
-- [ ] Manual check: Test touch hold pause, keyboard arrow keys, and boundary button states.
+- [ ] Manual check: Test touch tap zones, keyboard arrow keys, and boundary button states.
 
 **Dependencies:** Task 3
 
@@ -156,11 +153,11 @@ src/ui/lib/data.ts (Categories, Items, Nutrition data)
 
 ---
 
-### Checkpoint: Playback & Controls
+### Checkpoint: Story Navigation & Controls
 
 - [ ] All tests pass: `pnpm run test`
 - [ ] Application builds without errors: `pnpm run build`
-- [ ] Manual & automatic story progression, touch pause, replay, and keyboard controls function correctly.
+- [ ] Manual Story navigation, boundary protection, and keyboard controls function correctly.
 
 ---
 
@@ -197,14 +194,14 @@ src/ui/lib/data.ts (Categories, Items, Nutrition data)
 
 ## Task 6: Expand Vitest test suite for full specification coverage
 
-**Description:** Enhance `src/App.test.tsx` to verify all spec success criteria, including initial state, category switching, manual boundaries, timed 6s progression, playback pause/resume, touch hold pause, replay, and dynamic nutrition facts updating per active item.
+**Description:** Enhance `src/App.test.tsx` to verify all spec success criteria, including initial state, Category switching, manual boundaries, keyboard/touch navigation, and dynamic Nutrition Facts updating per active item.
 
 **Acceptance criteria:**
 
 - [ ] Tests cover initial render on Pizza Margherita with its specific nutrition facts (720 kcal, 28g protein, 82g carbs, 29g fat).
 - [ ] Tests verify switching categories updates heading, price, ingredients, and nutrition facts dynamically.
-- [ ] Tests verify multi-segment progress timer attributes and timed 6-second advances.
-- [ ] Tests verify touch start/end pause behavior and replay button behavior on completion.
+- [ ] Tests verify multi-segment Progress Timer attributes and manual navigation updates.
+- [ ] Tests verify tap-zone, keyboard, and boundary behavior.
 - [ ] Test execution runs cleanly with `pnpm run test` and `pnpm run lint`.
 
 **Verification:**
@@ -228,17 +225,15 @@ src/ui/lib/data.ts (Categories, Items, Nutrition data)
 - [ ] All tests pass: `pnpm run test`
 - [ ] Linter clean: `pnpm run lint`
 - [ ] Application builds without errors: `pnpm run build`
-- [ ] All 13 spec success criteria met.
+- [ ] All 11 spec success criteria met.
 
 ---
 
 ## Risks and Mitigations
 
-| Risk                                                                          | Impact | Mitigation                                                                                                     |
-| ----------------------------------------------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------- |
-| Timer drift with `setInterval` during fake timer testing                      | Medium | Use 100ms interval step in `usePlayback` with explicit `elapsedRef` synchronization and fake timers in tests.  |
-| Touch event listeners conflicting with click zone buttons on touch devices    | Low    | Use standard `onTouchStart`/`onTouchEnd` on container while preserving explicit `type="button"` zone overlays. |
-| Visual clipping of long ingredient lists or nutrition facts on narrow screens | Medium | Use responsive flex/grid layouts with scrollable/wrapping containers inside fixed portrait frame.              |
+| Risk                                                                          | Impact | Mitigation                                                                                        |
+| ----------------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------- |
+| Visual clipping of long ingredient lists or nutrition facts on narrow screens | Medium | Use responsive flex/grid layouts with scrollable/wrapping containers inside fixed portrait frame. |
 
 ## Open Questions
 
