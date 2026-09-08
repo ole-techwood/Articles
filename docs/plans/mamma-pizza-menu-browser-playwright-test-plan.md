@@ -17,24 +17,22 @@ Verify that a fresh Reader can:
 
 1. Open on Pizza, Story 1 of 3, with Margherita and its complete Menu Item details.
 2. Select every Category through an accessible Story Circle and start at that Category's first Story.
-3. Browse exactly three ordered Stories within each Category without crossing sequence boundaries.
+3. Browse ordered Stories across adjacent Category sequences through explicit manual navigation.
 4. Advance Stories only through explicit manual interaction.
 5. Read dynamic per-serving Nutrition Facts for the active Menu Item.
 6. Use keyboard, pointer, and touch-capable interactions on desktop and mobile layouts.
 7. Confirm the experience remains browse-only, with no ordering, account, payment, staff, or backend workflow.
 
-### Known Conflicts
+### Accepted behavior oracle
 
-No behavior conflict exists among the three selected source documents. The substitute user story is a glossary rather than an acceptance-criteria document, so the numbered specification success criteria are the authoritative traceability targets.
+The live application is the behavior oracle for this browser plan. The substitute user story is a glossary rather than an acceptance-criteria document, and the current implementation presents Category sequences as one continuous manual browse order.
 
-The current repository baseline has implementation gaps that must be resolved before these tests can pass:
+- Stories never advance without explicit Reader interaction.
+- Story 3 advances to Story 1 of the next Category. Story 1 moves back to Story 3 of the previous Category.
+- Only Story 1 of the first Category disables previous navigation. Only Story 3 of the final Category disables next navigation.
+- Progress segments mark the current and prior Stories as `100`, and later Stories as `0`.
 
-- The live application requires manual Story navigation; no automatic transitions or playback controls are in scope.
-- `usePlayback` should keep only Category and Story selection state plus boundary behavior.
-- At either Story boundary, navigation must remain in the selected Category: Story 1 cannot move backward and Story 3 cannot move forward. Category changes occur only through explicit Story Circle selection.
-- The current baseline progress segments expose selected Story position, not elapsed time.
-
-These are execution blockers for the related scenarios, not changes to the approved requirements.
+Tests assert this observable contract. No business-logic change is required for these scenarios.
 
 ### Test environment and release gate
 
@@ -51,9 +49,9 @@ These are execution blockers for the related scenarios, not changes to the appro
 | --- | ------------------------------------------------------------------------------------------------------------------------------------ | --------------------------- |
 | A1  | Initial state is Pizza, Story 1 of 3, Margherita, with all required content and Nutrition Facts.                                     | PW-01                       |
 | A2  | Six labeled Story Circles select Categories and reset each sequence to Story 1.                                                      | PW-02                       |
-| A3  | Each Category has exactly three ordered Stories; manual navigation respects both sequence boundaries.                                | PW-03                       |
+| A3  | Each Category has exactly three ordered Stories; manual navigation follows ordered Stories across adjacent Category sequences.       | PW-03                       |
 | A4  | Stories advance only through explicit manual interaction and final Story remains visible until Reader navigates away.                | PW-04                       |
-| A5  | Progress Timer exposes completed, current, and pending progress visually and semantically.                                           | PW-05                       |
+| A5  | Progress Timer exposes cumulative current/prior markers and pending later Stories visually and semantically.                         | PW-05                       |
 | A6  | Story Frame is portrait on desktop and full-width/full-height within the mobile experience; content and controls stay within bounds. | PW-06                       |
 | A7  | Automated coverage exists for initial state, selection, navigation, touch, keyboard, and content.                                    | All scenarios; release gate |
 | A8  | Nutrition Facts update from the active Menu Item after Story and Category changes.                                                   | PW-02, PW-03, PW-07         |
@@ -80,11 +78,11 @@ All scenarios assume a fresh browser context and are independent. Reset to the a
 5. Verify the Nutrition Facts region is named `Nutrition Facts per serving`.
 6. Verify values are `720 kcal`, `28g`, `82g`, and `29g` for calories, protein, carbohydrates, and fat.
 7. Verify exactly six Category Story Circles exist, Pizza is pressed, and exactly three progress segments exist.
-8. Verify the first segment starts at zero active progress, with the other two segments pending.
+8. Verify the current Story marker is complete (`100`), with the other two segments pending (`0`).
 
 **Expected outcomes:** Margherita is immediately readable as the Featured Dish. Required content and Nutrition Facts are present and associated with the first Story. No ordering control or unexpected navigation appears.
 
-**Pass/fail:** Pass only if all content, accessible names, initial selection state, and initial progress semantics match. Fail on missing fields, shared/wrong Nutrition Facts, incorrect Category, or wrong Story position.
+**Pass/fail:** Pass only if all content, accessible names, initial selection state, and initial progress semantics match. Fail on missing fields, shared/wrong Nutrition Facts, incorrect Category, wrong Story position, or incorrect cumulative progress values.
 
 ### PW-02: Select every Category and reset to its first Story
 
@@ -105,29 +103,26 @@ All scenarios assume a fresh browser context and are independent. Reset to the a
 
 **Pass/fail:** Pass only if all six Categories reset correctly and display the expected first Menu Item and Nutrition Facts. Fail on wrong active state, stale Story content, or stale Nutrition Facts.
 
-### PW-03: Browse Stories and enforce per-Category boundaries
+### PW-03: Browse Stories across ordered Category sequences
 
 **Maps to:** A3, A10.
 
-**Starting state:** Fresh context, repeated once for each Category fixture.
+**Starting state:** Fresh context at the first Story in the first Category.
 
 **Steps:**
 
-1. Select the target Category Story Circle.
-2. Verify Story 1 of 3 and the fixture's first Menu Item.
-3. Click the explicit `Next story` control once; verify Story 2 of 3 and the fixture's second Menu Item.
-4. Click `Next story` once more; verify Story 3 of 3 and the fixture's third Menu Item.
-5. Verify the next controls, including the right tap zone and explicit Story control, are disabled or otherwise inert at Story 3.
-6. Attempt both next interactions again; verify Story 3, its content, and the selected Category remain unchanged.
-7. Click the explicit `Previous story` control once; verify Story 2 of 3.
-8. Click it again; verify Story 1 of 3.
-9. Verify previous controls are disabled or inert at Story 1.
-10. Attempt both previous interactions again; verify the application remains in Story 1, keeps the selected Category active, and does not move to another Category.
-11. Verify Category selection remains unchanged throughout the boundary checks.
+1. Navigate to `/` and verify Pizza Story 1 of 3; previous controls are disabled at the global first Story.
+2. For each Category in fixture order, verify its Story 1 and first Menu Item.
+3. Click the explicit `Next story` control twice; verify Stories 2 and 3 and their expected Menu Items.
+4. At Story 3 of every non-final Category, verify next controls remain enabled.
+5. Advance once; verify the next Category's Story 1, first Menu Item, and pressed Category Circle.
+6. From the next Category's Story 1, verify previous controls remain enabled and navigate back to the preceding Category's Story 3.
+7. Advance again and continue through remaining Categories.
+8. At Drinks Story 3, verify next controls are disabled at the global final Story.
 
-**Expected outcomes:** Each Category contains exactly three ordered Stories. Manual navigation remains inside the selected Category's Story Sequence, and boundary attempts do not underflow, overflow, or implicitly change Category.
+**Expected outcomes:** Each Category contains exactly three ordered Stories. Manual navigation follows the global ordered browse sequence, crossing only to adjacent Categories at Story edges. Global first and final Stories remain bounded.
 
-**Pass/fail:** Pass only if every Category meets both boundaries and all three expected Menu Items appear in order. Fail on cross-Category navigation, missing disabled/inert state, wrong order, or stale Nutrition Facts.
+**Pass/fail:** Pass only if all 18 Stories appear in order, adjacent Category transitions work, global boundaries are disabled, and Menu Item content remains correct. Fail on skipped/repeated Stories, wrong Category transition, incorrect boundary state, wrong order, or stale Nutrition Facts.
 
 ### PW-04: Advance Stories only through explicit manual interaction
 
@@ -158,13 +153,13 @@ All scenarios assume a fresh browser context and are independent. Reset to the a
 1. Navigate to `/` and verify three progressbar elements exist.
 2. Read each segment's `aria-label`, `aria-valuemin`, `aria-valuemax`, and `aria-valuenow`.
 3. Verify labels are `Story 1 progress`, `Story 2 progress`, and `Story 3 progress`; min is `0`; max is `100`.
-4. Verify Story 1 is current, Story 2 and Story 3 are pending.
-5. Click `Next story`; verify Story 1 is completed, Story 2 is current, and Story 3 is pending.
-6. Click `Next story`; verify all prior segments are completed and Story 3 is current.
+4. Verify Story 1 is marked `100`, Story 2 and Story 3 are marked `0`.
+5. Click `Next story`; verify Story 1 and Story 2 are marked `100`, and Story 3 is marked `0`.
+6. Click `Next story`; verify all three segments are marked `100`.
 
-**Expected outcomes:** Progress values communicate completed, current, and pending Stories through semantics and visual state. Manual navigation updates progress without elapsed-time behavior.
+**Expected outcomes:** Progress values communicate cumulative Story position: current and prior Stories are `100`, later Stories are `0`. Story Frame accessible names identify current Story. Manual navigation updates progress without elapsed-time behavior.
 
-**Pass/fail:** Pass only if every segment has correct accessible semantics and values at each manually selected Story. Fail on missing roles/labels, incorrect completed/current/pending values, or out-of-range values.
+**Pass/fail:** Pass only if every segment has correct accessible semantics and cumulative values at each manually selected Story. Fail on missing roles/labels, incorrect values, or out-of-range values.
 
 ### PW-06: Verify responsive Story Frame layout and reachable Category Navigation
 

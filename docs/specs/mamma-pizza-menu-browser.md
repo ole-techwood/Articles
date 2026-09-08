@@ -21,8 +21,8 @@ The primary user is a Reader who wants to explore the menu quickly and enjoyably
 
 - A Reader opens directly on Pizza and sees Margherita as the Featured Dish.
 - A Reader chooses a Category through a labeled Story Circle.
-- A Reader moves backward and forward through a Category's Story Sequence.
-- A Reader advances Stories manually and can revisit any Story in the current Story Sequence.
+- A Reader moves backward and forward through the ordered Story Sequences, including adjacent Category transitions.
+- A Reader advances Stories manually and can revisit any Story in the browse order.
 - A Reader can inspect each Menu Item's name, description, ingredients, price, and Nutrition Facts.
 
 ## Scope
@@ -36,8 +36,8 @@ The primary user is a Reader who wants to explore the menu quickly and enjoyably
 - Story Frame presented as a portrait, phone-like frame on desktop and a full-screen experience on mobile.
 - Featured Dish initial state: Pizza Category, first Story, Margherita.
 - Manual previous and next Story navigation.
-- Manual progression through the current Story Sequence.
-- Progress Timer showing completed, current, and pending Stories.
+- Manual progression through the ordered Category sequences.
+- Progress Timer showing cumulative current/prior markers and pending later Stories.
 - Menu Item presentation with name, description, ingredients, euro price, and dynamically rendered per-serving Nutrition Facts for calories, protein, carbohydrates, and fat.
 - Approved static sample Menu Items and Nutrition Facts as final article-demo content.
 - Warm paper, deep olive, tomato red, and charcoal Palette.
@@ -53,7 +53,7 @@ The primary user is a Reader who wants to explore the menu quickly and enjoyably
 - Backend services, database persistence, or remote menu loading.
 - Dietary, medical, allergen, or health workflows beyond displaying the defined Nutrition Facts.
 - Search, filtering, favorites, reviews, sharing, analytics, or notifications.
-- Automatic looping from the final Story.
+- Automatic looping after the global final Story.
 - A separate marketing landing page or promotional offer system.
 
 ### Delivery phase
@@ -81,7 +81,7 @@ This specification defines the complete MVP. Implementation should preserve the 
 - `StoryContent`: Displays the current Menu Item and dynamically reads its Nutrition Facts for presentation.
 - `PlaybackTimer`: Displays one progress segment per Story and exposes progress semantics to assistive technology.
 - `StoryControls`: Provides explicit previous and next Story controls and current position.
-- `usePlayback`: Owns Category and Story indices, boundary behavior, and Category selection.
+- `usePlayback`: Owns Category and Story indices, ordered navigation, and Category selection.
 - `data`: Defines the typed Nutrition, Menu Item, and Category data model and the six static Categories.
 
 ### Domain model
@@ -97,11 +97,11 @@ This specification defines the complete MVP. Implementation should preserve the 
 
 - Initial state: first Category and first Story.
 - Selecting a Category: activate selected Category and reset to its first Story.
-- Next or previous navigation: move one Story within bounds.
-- Previous at first Story: remain on first Story, preserve the selected Category, and do not underflow.
-- Next at final Story: remain on final Story, preserve the selected Category, and do not overflow.
-- Story boundary navigation never implicitly selects an adjacent Category; Category changes occur only through an explicit Story Circle selection.
-- The Progress Timer must reflect completed, current, and pending Stories after manual navigation.
+- Next or previous navigation: move one Story in the global ordered browse sequence.
+- Previous at the first Story of the first Category: remain on that Story and do not underflow.
+- Next at the final Story of the final Category: remain on that Story and do not overflow.
+- At an internal Category edge, next or previous navigation crosses to the adjacent Category's corresponding boundary Story.
+- The Progress Timer marks the current and prior Stories as `100`, later Stories as `0`, after manual navigation.
 
 ### Layout and visual design
 
@@ -183,7 +183,7 @@ Use Vitest, Testing Library, and `jsdom` for behavior visible to the Reader. Tes
 
 - Initial render opens on Pizza with Margherita as Featured Dish.
 - All six Category Story Circles are available and selecting one starts its first Story.
-- Manual next and previous navigation changes Stories and respects both sequence boundaries.
+- Manual next and previous navigation changes Stories, crosses adjacent Category edges, and respects global first/final boundaries.
 - Required Menu Item fields and the active Menu Item's Nutrition Facts are rendered for the active Story.
 - Changing Story or Category updates the displayed Nutrition Facts to match the newly active Menu Item without requiring a page reload.
 
@@ -228,7 +228,7 @@ Before approval, verify in a modern browser at desktop and narrow mobile viewpor
 - Turn the Menu Browser into an ordering app or restaurant management system.
 - Add customer accounts, payment collection, checkout, or staff workflows.
 - Present Nutrition Facts as medical advice, dietary certification, or allergen guarantees.
-- Automatically loop the Story Sequence after its final Story.
+- Automatically loop after the global final Story.
 - Remove or weaken keyboard, screen-reader, or touch accessibility to simplify the UI.
 - Commit secrets or unrelated generated files.
 - Remove failing tests without approval.
@@ -240,11 +240,11 @@ The specification is fulfilled when all conditions below are true:
 
 1. The application opens on Pizza, Story 1 of 3, showing Margherita, its description, ingredients, euro price, and Margherita's per-serving Nutrition Facts.
 2. Reader can select each of six Categories through labeled Story Circles; each selection starts that Category's first Story.
-3. Every Category exposes exactly three ordered Stories, and manual navigation cannot move before Story 1, after Story 3, or implicitly into an adjacent Category.
+3. Every Category exposes exactly three ordered Stories, and manual navigation follows their global order across adjacent Categories without moving before the first Story or after the final Story.
 4. Stories advance only through explicit Reader interaction; final Story remains visible until Reader navigates away.
-5. Progress Timer communicates completed, current, and pending Story positions visually and semantically.
+5. Progress Timer communicates cumulative current/prior and pending later Story positions visually and semantically.
 6. Story Frame is portrait and phone-like on desktop, fills the mobile experience, and keeps content and controls within bounds.
-7. Automated tests cover initial state, Category selection, manual boundaries, keyboard/touch navigation, and required content.
+7. Automated tests cover initial state, Category selection, ordered cross-Category navigation, global boundaries, keyboard/touch navigation, and required content.
 8. Changing the active Story or Category updates calories, protein, carbohydrates, and fat from the newly active Menu Item's Nutrition Facts.
 9. The approved static sample Menu Items and Nutrition Facts remain unchanged as article-demo content.
 10. `pnpm run build`, `pnpm run lint`, and `pnpm test` pass.
